@@ -94,7 +94,7 @@ std::ostream& operator<<(std::ostream& stream, const Message& message)
     google::protobuf::util::MessageToJsonString(message, &output);
 
   CHECK(status.ok())
-    << "Could not convert messages to string: " << status.error_message();
+    << "Could not convert messages to string: " << status.message();
 
   return stream << output;
 }
