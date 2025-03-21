@@ -90,7 +90,7 @@ std::ostream& operator<<(std::ostream& stream, const Message& message)
 {
   // NOTE: We use Google's JSON utility functions for proto3.
   std::string output;
-  google::protobuf::util::Status status =
+  auto status =
     google::protobuf::util::MessageToJsonString(message, &output);
 
   CHECK(status.ok())

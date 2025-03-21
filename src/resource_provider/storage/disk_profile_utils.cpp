@@ -39,7 +39,7 @@ Try<DiskProfileMapping> parseDiskProfileMapping(
   google::protobuf::util::JsonParseOptions options;
   options.ignore_unknown_fields = true;
 
-  google::protobuf::util::Status status =
+  auto status =
     google::protobuf::util::JsonStringToMessage(data, &output, options);
 
   if (!status.ok()) {
