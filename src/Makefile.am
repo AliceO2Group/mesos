@@ -257,7 +257,7 @@ PROTOC = ../$(PROTOBUF)/src/protoc
 PROTOCFLAGS += -I../$(PROTOBUF)/src
 else
 LIB_PROTOBUF = -lprotobuf
-LDADD += -lprotobuf
+# LDADD += -lprotobuf
 PROTOC = @PROTOCOMPILER@
 PROTOCFLAGS += @PROTOBUF_PROTOCFLAGS@
 endif
@@ -1121,6 +1121,8 @@ libmesos_no_3rdparty_la_SOURCES +=					\
   internal/devolve.hpp							\
   internal/evolve.cpp							\
   internal/evolve.hpp							\
+  launcher/do_fetcher.cpp                                               \
+  launcher/do_fetcher.hpp						\
   local/flags.hpp							\
   local/local.cpp							\
   local/local.hpp							\
