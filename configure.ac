@@ -707,9 +707,9 @@ AX_CHECK_COMPILE_FLAG([-fstack-protector-strong],
   [AC_SUBST(STACK_PROTECTOR, "-fstack-protector-strong")],
   [AC_SUBST(STACK_PROTECTOR, "-fstack-protector")])
 
-# Ensure that CXX supports C++20 (with "strict" conformance), and set
+# Ensure that CXX supports C++11 (with "strict" conformance), and set
 # "--std=" flag and CXXFLAGS environment variable as appropriate.
-AX_CXX_COMPILE_STDCXX([20], [noext], [mandatory])
+AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
 
 # Blacklist known incompatible C++ standard libraries to reduce chance
 # of users accidentally using them.
