@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <string>
 
+#include <boost/version.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -81,7 +82,11 @@ public:
   std::string toBytes() const
   {
     assert(sizeof(data) == size());
+#if BOOST_VERSION >= 109000
+    return std::string(reinterpret_cast<const char*>(data()), sizeof(data));
+#else
     return std::string(reinterpret_cast<const char*>(data), sizeof(data));
+#endif
   }
 
   std::string toString() const
