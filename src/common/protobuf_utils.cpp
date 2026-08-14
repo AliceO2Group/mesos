@@ -123,11 +123,11 @@ Option<Error> UnionValidator::validate(
         reflection->HasField(message, fieldDescriptor)) {
       const auto* descr = typeDescriptor_->FindValueByNumber(messageTypeNumber);
       return Error(
-          "Protobuf union `" + message.GetDescriptor()->full_name() +
+          "Protobuf union `" + string(message.GetDescriptor()->full_name()) +
           "` with `Type == " +
-          (descr == nullptr ? string("<UNKNOWN>") : descr->name()) +
+          (descr == nullptr ? string("<UNKNOWN>") : string(descr->name())) +
           "` should not have the field `" +
-          fieldDescriptor->name() + "` set.");
+          string(fieldDescriptor->name()) + "` set.");
     }
   }
   return None();
