@@ -40,7 +40,7 @@ inline void post(const process::UPID& to,
 {
   std::string data;
   if (message.SerializeToString(&data)) {
-    post(to, message.GetTypeName(), data.data(), data.size());
+    post(to, std::string(message.GetTypeName()), data.data(), data.size());
   } else {
     LOG(ERROR) << "Failed to post '" << message.GetTypeName() << "' to "
                << to << ": Failed to serialize";
@@ -54,7 +54,7 @@ inline void post(const process::UPID& from,
 {
   std::string data;
   if (message.SerializeToString(&data)) {
-    post(from, to, message.GetTypeName(), data.data(), data.size());
+    post(from, to, std::string(message.GetTypeName()), data.data(), data.size());
   } else {
     LOG(ERROR) << "Failed to post '" << message.GetTypeName() << "' to "
                << to << ": Failed to serialize";
@@ -128,7 +128,8 @@ protected:
   {
     std::string data;
     if (message.SerializeToString(&data)) {
-      process::Process<T>::send(to, message.GetTypeName(), std::move(data));
+      process::Process<T>::send(
+          to, std::string(message.GetTypeName()), std::move(data));
     } else {
       LOG(ERROR) << "Failed to send '" << message.GetTypeName() << "' to "
                  << to << ": Failed to serialize";
@@ -149,7 +150,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(&handlerM<M>,
                    t, method,
                    lambda::_1, lambda::_2);
@@ -161,7 +162,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(&handlerMutM<M>,
                    t, method,
                    lambda::_1, lambda::_2);
@@ -176,7 +177,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(&handler0,
                    t, method,
                    lambda::_1, lambda::_2);
@@ -191,7 +192,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(static_cast<void(&)(
                        T*,
                        void (T::*)(const process::UPID&, PC...),
@@ -209,7 +210,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(&_handlerM<M>,
                    t, method,
                    lambda::_1, lambda::_2);
@@ -221,7 +222,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(&_handlerMutM<M>,
                    t, method,
                    lambda::_1, lambda::_2);
@@ -233,7 +234,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(&_handler0,
                    t, method,
                    lambda::_1, lambda::_2);
@@ -248,7 +249,7 @@ protected:
   {
     google::protobuf::Message* m = new M();
     T* t = static_cast<T*>(this);
-    protobufHandlers[m->GetTypeName()] =
+    protobufHandlers[std::string(m->GetTypeName())] =
       lambda::bind(static_cast<void(&)(
                        T*,
                        void (T::*)(PC...),
@@ -272,7 +273,7 @@ private:
       const std::string& data)
   {
     google::protobuf::Arena arena;
-    M* m = CHECK_NOTNULL(google::protobuf::Arena::CreateMessage<M>(&arena));
+    M* m = CHECK_NOTNULL(google::protobuf::Arena::Create<M>(&arena));
 
     if (m->ParseFromString(data)) {
       (t->*method)(sender, *m);
@@ -318,7 +319,7 @@ private:
       MessageProperty<M, P>... p)
   {
     google::protobuf::Arena arena;
-    M* m = CHECK_NOTNULL(google::protobuf::Arena::CreateMessage<M>(&arena));
+    M* m = CHECK_NOTNULL(google::protobuf::Arena::Create<M>(&arena));
 
     if (m->ParseFromString(data)) {
       (t->*method)(sender, google::protobuf::convert((m->*p)())...);
@@ -337,7 +338,7 @@ private:
       const std::string& data)
   {
     google::protobuf::Arena arena;
-    M* m = CHECK_NOTNULL(google::protobuf::Arena::CreateMessage<M>(&arena));
+    M* m = CHECK_NOTNULL(google::protobuf::Arena::Create<M>(&arena));
 
     if (m->ParseFromString(data)) {
       (t->*method)(*m);
@@ -383,7 +384,7 @@ private:
       MessageProperty<M, P>... p)
   {
     google::protobuf::Arena arena;
-    M* m = CHECK_NOTNULL(google::protobuf::Arena::CreateMessage<M>(&arena));
+    M* m = CHECK_NOTNULL(google::protobuf::Arena::Create<M>(&arena));
 
     if (m->ParseFromString(data)) {
       (t->*method)(google::protobuf::convert((m->*p)())...);

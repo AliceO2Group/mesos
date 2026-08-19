@@ -41,6 +41,7 @@
 #include <functional>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -344,7 +345,7 @@ public:
   ObjectWriter& operator=(ObjectWriter&&) = delete;
 
   template <typename T>
-  void field(const std::string& key, const T& value)
+  void field(std::string_view key, const T& value)
   {
     // This check will fail we enable write validation in rapidjson;
     // we'll need to figure out a way to surface the error.
@@ -352,7 +353,7 @@ public:
     // TODO(bmahler): The 1.1.0 release of rapidjson did not
     // yet have the std::string overload for `Key`, avoid calling
     // `c_str()` and `size()` when we upgrade beyond 1.1.0.
-    CHECK(writer_->Key(key.c_str(), key.size()));
+    CHECK(writer_->Key(key.data(), key.size()));
     jsonify(value).write(writer_);
   }
 
