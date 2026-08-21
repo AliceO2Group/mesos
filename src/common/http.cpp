@@ -224,7 +224,7 @@ void json(JSON::ObjectWriter* writer, const asV1Protobuf& protobuf)
   foreach (const FieldDescriptor* field, fields) {
     if (field->is_repeated() && !field->is_map()) {
       writer->field(
-          lowerSlaveToAgent(field->name()),
+          lowerSlaveToAgent(string(field->name())),
           [&field, &reflection, &message](JSON::ArrayWriter* writer) {
             int fieldSize = reflection->FieldSize(message, field);
             for (int i = 0; i < fieldSize; ++i) {
@@ -264,9 +264,9 @@ void json(JSON::ObjectWriter* writer, const asV1Protobuf& protobuf)
                   break;
                 case FieldDescriptor::CPPTYPE_ENUM:
                   writer->element(
-                      upperSlaveToAgent(
+                      upperSlaveToAgent(string(
                           reflection->GetRepeatedEnum(message, field, i)
-                            ->name()));
+                            ->name())));
                   break;
                 case FieldDescriptor::CPPTYPE_STRING:
                   const std::string& s = reflection->GetRepeatedStringReference(
@@ -316,7 +316,8 @@ void json(JSON::ObjectWriter* writer, const asV1Protobuf& protobuf)
           case FieldDescriptor::CPPTYPE_ENUM:
             writer->field(
                 fieldName,
-                upperSlaveToAgent(reflection->GetEnum(message, field)->name()));
+                upperSlaveToAgent(
+                    string(reflection->GetEnum(message, field)->name())));
             break;
           case FieldDescriptor::CPPTYPE_STRING:
             const std::string& s =
@@ -332,11 +333,14 @@ void json(JSON::ObjectWriter* writer, const asV1Protobuf& protobuf)
 
       if (!field->is_repeated()) { // Singular field.
         writeField(
-            lowerSlaveToAgent(field->name()), reflection, message, field);
+            lowerSlaveToAgent(string(field->name())),
+            reflection,
+            message,
+            field);
       } else { // Map field.
         CHECK(field->is_map());
         writer->field(
-            lowerSlaveToAgent(field->name()),
+            lowerSlaveToAgent(string(field->name())),
             [&field, &reflection, &message, &writeField](
                 JSON::ObjectWriter* writer) {
               foreach (

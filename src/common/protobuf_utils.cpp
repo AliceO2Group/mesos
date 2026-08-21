@@ -102,7 +102,8 @@ UnionValidator::UnionValidator(const google::protobuf::Descriptor* descriptor)
     }
 
     const auto* fieldDescriptor =
-      descriptor->FindFieldByName(strings::lower(typeValueDescriptor->name()));
+      descriptor->FindFieldByName(
+          strings::lower(string(typeValueDescriptor->name())));
 
     CHECK_NOTNULL(fieldDescriptor);
     unionFieldDescriptors_.emplace_back(
