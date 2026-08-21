@@ -157,7 +157,7 @@ construct(PyObject* obj)
     PyErr_Format(
         PyExc_TypeError,
         "Failed to construct %s from a Python object",
-        result->GetDescriptor()->full_name().c_str());
+        std::string(result->GetDescriptor()->full_name()).c_str());
 
     return nullptr;
   }
