@@ -31,6 +31,7 @@
 #include <limits>
 #include <map>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -81,6 +82,7 @@ struct String
   String() {}
   String(const char* _value) : value(_value) {}
   String(const std::string& _value) : value(_value) {}
+  String(std::string_view _value) : value(_value) {}
   std::string value;
 };
 

@@ -41,6 +41,7 @@
 #include <functional>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -285,6 +286,15 @@ public:
     CHECK(writer_->String(value));
   }
 
+  void set(std::string_view value)
+  {
+    empty_ = false;
+
+    // This check will fail if we enable write validation in rapidjson;
+    // we'll need to figure out a way to surface the error.
+    CHECK(writer_->String(value.data(), value.size()));
+  }
+
 private:
   rapidjson::Writer<rapidjson::StringBuffer>* writer_;
   bool empty_;
@@ -344,7 +354,7 @@ public:
   ObjectWriter& operator=(ObjectWriter&&) = delete;
 
   template <typename T>
-  void field(const std::string& key, const T& value)
+  void field(std::string_view key, const T& value)
   {
     // This check will fail we enable write validation in rapidjson;
     // we'll need to figure out a way to surface the error.
@@ -352,7 +362,7 @@ public:
     // TODO(bmahler): The 1.1.0 release of rapidjson did not
     // yet have the std::string overload for `Key`, avoid calling
     // `c_str()` and `size()` when we upgrade beyond 1.1.0.
-    CHECK(writer_->Key(key.c_str(), key.size()));
+    CHECK(writer_->Key(key.data(), key.size()));
     jsonify(value).write(writer_);
   }
 
@@ -438,6 +448,26 @@ inline void json(StringWriter* writer, const std::string& value)
   writer->set(value);
 }
 
+
+// For the `absl::string_view` the protobuf descriptor accessors return since
+// protobuf 22. Without this, such a value is written as an array of
+// one-character strings: `std::string`'s converting constructor from
+// `string_view` is explicit, so the overload above is not viable, and a
+// `string_view` is iterable, so the one below is.
+//
+// Constrained to an exact `std::string_view` on purpose. A plain
+// `json(StringWriter*, std::string_view)` overload would instead make
+// `const char*` ambiguous against the overload above, both being
+// user-defined conversions.
+template <
+    typename T,
+    typename std::enable_if<
+        std::is_same<T, std::string_view>::value, int>::type = 0>
+void json(StringWriter* writer, T value)
+{
+  writer->set(value);
+}
+
 namespace internal {
 
 // TODO(mpark): Pull this out to something like <stout/meta.hpp>.
@@ -499,12 +529,18 @@ public:
 // `json` function for iterables (e.g., std::vector).
 // This function is only enabled if `Iterable` is iterable, is not a
 // `const char (&)[N]` (in order to avoid ambiguity with the string literal
-// overload), and does not have a member typedef `mapped_type` (we take the
-// existence of `mapped_type` as the indication of an associative container).
+// overload), is not convertible to `std::string_view` (strings are iterable
+// too, and would otherwise be written as an array of one-character strings
+// -- the string overload above only wins for `std::string` because a
+// non-template beats a template, which does not help a type that reaches it
+// by conversion), and does not have a member typedef `mapped_type` (we take
+// the existence of `mapped_type` as the indication of an associative
+// container).
 template <
     typename Iterable,
     typename std::enable_if<
         internal::IsSequence<Iterable>::value &&
+        !std::is_convertible<const Iterable&, std::string_view>::value &&
         !(std::is_array<Iterable>::value &&
           std::rank<Iterable>::value == 1 &&
           std::is_same<

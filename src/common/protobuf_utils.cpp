@@ -102,7 +102,8 @@ UnionValidator::UnionValidator(const google::protobuf::Descriptor* descriptor)
     }
 
     const auto* fieldDescriptor =
-      descriptor->FindFieldByName(strings::lower(typeValueDescriptor->name()));
+      descriptor->FindFieldByName(
+          strings::lower(string(typeValueDescriptor->name())));
 
     CHECK_NOTNULL(fieldDescriptor);
     unionFieldDescriptors_.emplace_back(
@@ -123,11 +124,11 @@ Option<Error> UnionValidator::validate(
         reflection->HasField(message, fieldDescriptor)) {
       const auto* descr = typeDescriptor_->FindValueByNumber(messageTypeNumber);
       return Error(
-          "Protobuf union `" + message.GetDescriptor()->full_name() +
+          "Protobuf union `" + string(message.GetDescriptor()->full_name()) +
           "` with `Type == " +
-          (descr == nullptr ? string("<UNKNOWN>") : descr->name()) +
+          (descr == nullptr ? string("<UNKNOWN>") : string(descr->name())) +
           "` should not have the field `" +
-          fieldDescriptor->name() + "` set.");
+          string(fieldDescriptor->name()) + "` set.");
     }
   }
   return None();
